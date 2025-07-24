@@ -36,5 +36,23 @@ class TransparentDisplay:
         self.device.display(image)
     
     def draw_midpoint(self, points):
-        pass #TODO
+        x = 0
+        y = 0
+
+        image = Image.new("1", self.device.size)
+        draw = ImageDraw.Draw(image)
+
+        for point in points:
+            x += point[0]
+            y += point[1]
+        x = x/4
+        y = y/4
+
+        draw.ellipse((x - 1, y - 1, x + 1, y + 1), fill=255)
+
+        self.device.display(image)
+
+    def clear(self):
+        self.device.clear()
+
 
