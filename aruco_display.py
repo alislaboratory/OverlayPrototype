@@ -34,20 +34,18 @@ while True:
     # Detect ArUco markers
     corners, ids, rejected = cv2.aruco.detectMarkers(gray, aruco_dict, parameters=parameters)
 
-    ###### DRAWING TO DISPLAY ######
-    display.clear()
-    points = tuple(map(tuple, corners[0][0]))
-    print(points)
-    mapped_points = display.map_points_to_display(points)
-    display.draw_bounding_box(mapped_points)
-    time.sleep(0.01)
-
     
-
-    #######
 
     # If markers are found, draw them
     if ids is not None:
+         ###### DRAWING TO DISPLAY ######
+        display.clear()
+        points = tuple(map(tuple, corners[0][0]))
+        print(points)
+        mapped_points = display.map_points_to_display(points)
+        display.draw_bounding_box(mapped_points)
+        time.sleep(0.01)
+        #######
         cv2.aruco.drawDetectedMarkers(frame, corners, ids)
 
     # Show the image
