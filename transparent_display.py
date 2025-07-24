@@ -34,4 +34,7 @@ class TransparentDisplay:
 
         # Display the image
         self.device.display(image)
+    
+    def draw_midpoint(self, points):
+        pass #TODO
 
