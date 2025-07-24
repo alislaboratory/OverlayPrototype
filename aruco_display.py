@@ -44,7 +44,7 @@ while True:
         print(points)
         mapped_points = display.map_points_to_display(points)
         display.draw_bounding_box(mapped_points)
-        time.sleep(0.01)
+        display.draw_midpoint(mapped_points)
         #######
         cv2.aruco.drawDetectedMarkers(frame, corners, ids)
 
