@@ -35,7 +35,7 @@ while True:
     ###### DRAWING TO DISPLAY ######
     # print(corners)
     print(corners)
-    print(corners[0][0])
+    print(corners[1][1])
     print()
     print()
 
