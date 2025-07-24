@@ -34,6 +34,7 @@ while True:
 
     ###### DRAWING TO DISPLAY ######
     print(corners)
+    for corner in corners: print(corners)
 
     #######
 
