@@ -22,6 +22,8 @@ parameters = cv2.aruco.DetectorParameters_create()
 
 print("Press 'q' to quit...")
 
+
+
 while True:
     # Capture a frame
     frame = picam2.capture_array()
@@ -33,11 +35,14 @@ while True:
     corners, ids, rejected = cv2.aruco.detectMarkers(gray, aruco_dict, parameters=parameters)
 
     ###### DRAWING TO DISPLAY ######
-    # print(corners)
-    print(corners)
-    print(corners[1][1])
-    print()
-    print()
+    display.clear()
+    points = tuple(map(tuple, corners[0][0]))
+    print(points)
+    mapped_points = display.map_points_to_display(points)
+    display.draw_bounding_box(mapped_points)
+    time.sleep(0.01)
+
+    
 
     #######
 

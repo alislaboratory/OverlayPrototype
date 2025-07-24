@@ -54,5 +54,17 @@ class TransparentDisplay:
 
     def clear(self):
         self.device.clear()
+    
+    def map_points_to_display(self, points, src_size=(640, 480), dst_size=(128, 64)):
+        src_w, src_h = src_size
+        dst_w, dst_h = dst_size
+
+        scale_x = dst_w / src_w
+        scale_y = dst_h / src_h
+
+        mapped = tuple(
+            (int(x * scale_x), int(y * scale_y)) for (x, y) in points
+        )
+        return mapped
 
 
