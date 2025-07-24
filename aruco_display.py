@@ -33,8 +33,8 @@ while True:
     corners, ids, rejected = cv2.aruco.detectMarkers(gray, aruco_dict, parameters=parameters)
 
     ###### DRAWING TO DISPLAY ######
-    print(corners)
-    for corner in corners: print(corners)
+    # print(corners)
+    for corner in corners: print(corner)
 
     #######
 
