@@ -3,21 +3,19 @@ import cv2
 import numpy as np
 import time
 
-# Initialize the camera
+# Initialize Picamera2
 picam2 = Picamera2()
 picam2.preview_configuration.main.size = (640, 480)
 picam2.preview_configuration.main.format = "RGB888"
 picam2.configure("preview")
 picam2.start()
 
-# Allow the camera to warm up
+# Allow camera to warm up
 time.sleep(1)
 
-# Load the ArUco dictionary
-aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
-parameters = cv2.aruco.DetectorParameters()
-
-detector = cv2.aruco.ArucoDetector(aruco_dict, parameters)
+# Load ArUco dictionary and parameters (legacy API)
+aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
+parameters = cv2.aruco.DetectorParameters_create()
 
 print("Press 'q' to quit...")
 
@@ -29,19 +27,19 @@ while True:
     gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
 
     # Detect ArUco markers
-    corners, ids, rejected = detector.detectMarkers(gray)
+    corners, ids, rejected = cv2.aruco.detectMarkers(gray, aruco_dict, parameters=parameters)
 
-    # If markers are detected
+    # If markers are found, draw them
     if ids is not None:
-        # Draw detected markers
         cv2.aruco.drawDetectedMarkers(frame, corners, ids)
 
-    # Show the result
+    # Show the image
     cv2.imshow("ArUco Detection", frame)
 
-    # Quit on 'q'
+    # Exit on 'q'
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
+# Cleanup
 cv2.destroyAllWindows()
 picam2.stop()
