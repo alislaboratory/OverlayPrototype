@@ -25,6 +25,7 @@ print(f"Streaming CSI-{CAMERA_INDEX} at {WIDTH}×{HEIGHT}. Press Q or ESC to qui
 try:
     while True:
         frame = picam2.capture_array("main")
+        frame = cv2.rotate(frame, cv2.ROTATE_180)
         cv2.imshow("CSI Camera", frame)
         if cv2.waitKey(1) & 0xFF in (27, ord('q')):
             break
