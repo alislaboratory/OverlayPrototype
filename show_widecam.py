@@ -5,8 +5,8 @@ def main():
     cap = cv2.VideoCapture(0, cv2.CAP_V4L2)  
 
     # Try bumping up to 1280×720 or 1920×1080 (or whatever your cam supports)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
     if not cap.isOpened():
         print("❌ Couldn't open camera")
