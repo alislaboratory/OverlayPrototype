@@ -2,7 +2,7 @@ import cv2
 from picamera2 import Picamera2
 
 # === CONFIGURE THIS ===
-CAMERA_INDEX = 0    # 0 = wide-angle CSI port, 1 = normal CSI port
+CAMERA_INDEX = 1    # 0 = wide-angle CSI port, 1 = normal CSI port
 WIDTH, HEIGHT = 1280, 720
 # ======================
 
