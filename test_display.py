@@ -10,7 +10,7 @@ display.draw_midpoint(points)
 sleep(1)
 display.clear()
 display.draw_text(0,0,0)
-sleep(10)
+sleep(60)
 #######
 #     #
 #     #
