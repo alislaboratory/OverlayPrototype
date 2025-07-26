@@ -3,56 +3,71 @@ import cv2
 import numpy as np
 import time
 
+# --- USER SETUP: adjust these paths & values ---
+CALIB_YAML    = "camera_calib.yaml"  # your YAML file
+MARKER_LENGTH = 0.05                 # marker side length in meters
+# ----------------------------------------------
+
+# Load camera calibration from YAML
+fs = cv2.FileStorage(CALIB_YAML, cv2.FILE_STORAGE_READ)
+if not fs.isOpened():
+    raise IOError(f"Cannot open calibration file: {CALIB_YAML}")
+camera_matrix = fs.getNode("camera_matrix").mat()
+dist_coeffs   = fs.getNode("distortion_coefficients").mat()
+fs.release()
+
 # Initialize Picamera2
 picam2 = Picamera2()
-picam2.preview_configuration.main.size = (640, 480)
+picam2.preview_configuration.main.size   = (640, 480)
 picam2.preview_configuration.main.format = "RGB888"
 picam2.configure("preview")
 picam2.start()
+time.sleep(1)  # let auto‐exposure settle
 
-# Allow camera to warm up
-time.sleep(1)
-
-# Load ArUco dictionary and parameters (legacy API)
+# Prepare ArUco detector
 aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
-parameters = cv2.aruco.DetectorParameters_create()
+params     = cv2.aruco.DetectorParameters_create()
 
 print("Press 'q' to quit...")
 
 while True:
-    # Capture a frame
+    # 1) Capture & preprocess
     frame = picam2.capture_array()
     frame = cv2.rotate(frame, cv2.ROTATE_180)
+    gray  = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
 
-    # Convert to grayscale
-    gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
-
-    # Detect ArUco markers
-    corners, ids, rejected = cv2.aruco.detectMarkers(gray, aruco_dict, parameters=parameters)
+    # 2) Detect markers
+    corners, ids, _ = cv2.aruco.detectMarkers(gray, aruco_dict, parameters=params)
 
     if ids is not None:
-        # Draw the marker outlines
         cv2.aruco.drawDetectedMarkers(frame, corners, ids)
 
-        # For each marker, compute and draw its center point
-        for marker_corners, marker_id in zip(corners, ids.flatten()):
-            # marker_corners is an array of shape (1, 4, 2); reshape to (4,2)
-            pts = marker_corners.reshape((4, 2))
-            # Compute the midpoint
-            center = pts.mean(axis=0).astype(int)
-            cx, cy = center
+        # 3) Estimate pose: returns rvecs & tvecs (in camera coords)
+        rvecs, tvecs, _ = cv2.aruco.estimatePoseSingleMarkers(
+            corners, MARKER_LENGTH, camera_matrix, dist_coeffs
+        )
 
-            # Draw a filled circle at the center
-            cv2.circle(frame, (cx, cy), 5, (0, 255, 0), -1)
+        for i, marker_id in enumerate(ids.flatten()):
+            rvec = rvecs[i][0]
+            tvec = tvecs[i][0]  # (x, y, z) in meters
 
-            # Optionally, label it with the marker ID
-            cv2.putText(frame, f"ID:{marker_id}", (cx + 10, cy + 10),
+            # Draw axes for visualization
+            cv2.aruco.drawAxis(frame, camera_matrix, dist_coeffs,
+                               rvec, tvec, MARKER_LENGTH * 0.5)
+
+            # Overlay the 3D coords on screen
+            x, y, z = tvec
+            text = f"ID {marker_id}: x={x:.3f}, y={y:.3f}, z={z:.3f} m"
+            # Draw text just above top-left corner of marker
+            corner_pt = tuple(corners[i][0][0].astype(int))
+            cv2.putText(frame, text, (corner_pt[0], corner_pt[1] - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-    # Show the image
-    cv2.imshow("ArUco Detection", frame)
+            # Also print to console
+            print(f"Marker {marker_id} → (x, y, z) = ({x:.3f}, {y:.3f}, {z:.3f}) m")
 
-    # Exit on 'q'
+    # Show result
+    cv2.imshow("ArUco 3D Pose", frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
