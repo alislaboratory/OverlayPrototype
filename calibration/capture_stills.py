@@ -6,7 +6,7 @@ import time
 import glob
 
 # ??? Configuration ???
-SAVE_DIR = "/stills"
+SAVE_DIR = "stills"
 PREVIEW_SIZE = (640, 480)   # adjust as needed
 
 # ??? Ensure save directory exists ???
