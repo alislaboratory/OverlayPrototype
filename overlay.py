@@ -12,7 +12,7 @@ import hardware
 CALIB_YAML    = "calibration/camera_calibration.yaml"  
 MARKER_LENGTH = 0.1               # marker side length in meters
 OBSERVER_FROM_FF = np.array([0.0383,0,0.0436]) # this is the observer camera from the front-facing in meters
-DISPLAY_FROM_OBSERVER = np.array([0.001,0,0.0383]) # how far the center of the display is from the camera
+DISPLAY_FROM_OBSERVER = np.array([-0.005,0,0.0383]) # how far the center of the display is from the camera
 SCREEN_ACTIVE_AREA = np.array([0.04204, 0.02722]) # how large the screen size is
 DISPLAY_RESOLUTION = (128,56) # transparent pixels of the screen (some are cut off - true size is 64 pixels vertically)
 # ----------------------------------------------
