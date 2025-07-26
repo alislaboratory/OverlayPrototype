@@ -1,85 +1,66 @@
 import cv2
 import numpy as np
-import time
-from picamera2 import Picamera2
 import os
+import glob
 
-# === Configuration ===
+# Checkerboard dimensions
 CHECKERBOARD = (9, 6)
-SQUARE_SIZE = 28.2  # mm
-NUM_IMAGES = 15
-DELAY_BETWEEN_CAPTURES = 2  # seconds
+SQUARE_SIZE = 28.2  # in mm
 
-SAVE_FILE = "camera_calibration.yaml"
-CAPTURE_DIR = "captured_images"
+# Criteria for termination of corner subpixel refinement
+criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
-# === Setup output directory ===
-os.makedirs(CAPTURE_DIR, exist_ok=True)
-
-# === Prepare object points ===
-objp = np.zeros((CHECKERBOARD[0] * CHECKERBOARD[1], 3), np.float32)
+# Prepare object points (0,0,0), (1*square_size,0,0), ..., (8*square_size,5*square_size,0)
+objp = np.zeros((CHECKERBOARD[0]*CHECKERBOARD[1], 3), np.float32)
 objp[:, :2] = np.mgrid[0:CHECKERBOARD[0], 0:CHECKERBOARD[1]].T.reshape(-1, 2)
 objp *= SQUARE_SIZE
 
-objpoints = []  # 3D points
-imgpoints = []  # 2D points
+# Arrays to store object points and image points from all images
+objpoints = []  # 3D points in real world space
+imgpoints = []  # 2D points in image plane
 
-# === Initialize camera ===
-picam2 = Picamera2()
-picam2.configure(picam2.create_still_configuration())
-picam2.start()
-time.sleep(2)  # Allow warm-up
+# Load calibration images from folder (adjust path if needed)
+images = glob.glob('calibration_images/*.jpg')
 
-print("Starting image capture for calibration...")
+if not images:
+    raise FileNotFoundError("No images found in 'calibration_images/' folder.")
 
-captured = 0
-while captured < NUM_IMAGES:
-    frame = picam2.capture_array()
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+for fname in images:
+    img = cv2.imread(fname)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
+    # Find the checkerboard corners
     ret, corners = cv2.findChessboardCorners(gray, CHECKERBOARD, None)
 
     if ret:
-        print(f"[{captured + 1}/{NUM_IMAGES}] Checkerboard found. Capturing...")
-
         objpoints.append(objp)
 
-        corners2 = cv2.cornerSubPix(gray, corners, (11,11), (-1,-1),
-                                    (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001))
+        # Refine pixel coordinates for given 2d points
+        corners2 = cv2.cornerSubPix(gray, corners, (11,11), (-1,-1), criteria)
         imgpoints.append(corners2)
 
-        img_with_corners = cv2.drawChessboardCorners(frame.copy(), CHECKERBOARD, corners2, ret)
-        filename = os.path.join(CAPTURE_DIR, f"img_{captured+1:02d}.jpg")
-        cv2.imwrite(filename, img_with_corners)
-
-        cv2.imshow('Captured', img_with_corners)
-        cv2.waitKey(500)
-
-        captured += 1
-        time.sleep(DELAY_BETWEEN_CAPTURES)
-    else:
-        print("Checkerboard not detected. Try adjusting position...")
-        cv2.imshow('Preview', frame)
+        # Draw and display the corners
+        cv2.drawChessboardCorners(img, CHECKERBOARD, corners2, ret)
+        cv2.imshow('Checkerboard', img)
         cv2.waitKey(100)
+    else:
+        print(f"Checkerboard not found in image {fname}")
 
 cv2.destroyAllWindows()
-picam2.stop()
 
-# === Calibration ===
-print("Calibrating camera...")
+# Calibrate the camera
 ret, camera_matrix, dist_coeffs, rvecs, tvecs = cv2.calibrateCamera(
     objpoints, imgpoints, gray.shape[::-1], None, None
 )
 
-print("Calibration complete.")
 print("Camera matrix:\n", camera_matrix)
 print("Distortion coefficients:\n", dist_coeffs)
 
-# === Save calibration ===
-fs = cv2.FileStorage(SAVE_FILE, cv2.FILE_STORAGE_WRITE)
+# Save calibration results
+fs = cv2.FileStorage("camera_calibration.yaml", cv2.FILE_STORAGE_WRITE)
 fs.write("camera_matrix", camera_matrix)
 fs.write("distortion_coefficients", dist_coeffs)
 fs.write("reprojection_error", ret)
 fs.release()
 
-print(f"Calibration data saved to '{SAVE_FILE}'")
+print("Calibration data saved to 'camera_calibration.yaml'")
