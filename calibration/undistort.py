@@ -5,7 +5,7 @@ from picamera2 import Picamera2
 
 # ?? Configuration ??
 CALIB_FILE    = "camera_calibration.yaml"
-PREVIEW_SIZE  = (640, 480)
+PREVIEW_SIZE  = (1280, 720)
 FLIP_180      = True    # set False if camera is upright
 WINDOW_NAME   = "Live Undistorted Preview (q to quit)"
 
