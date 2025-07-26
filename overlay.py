@@ -84,9 +84,9 @@ while True:
 
             ##### Overlay Code #######
             aruco_from_observer = hardware.from_observer(np.array([x,y,z]), OBSERVER_FROM_FF) # this will give us the aruco code's position relative to the observer
-            print(f"Aruco from observer cam: f{aruco_from_observer}")
+            print(f"Aruco's position from observer cam: f{aruco_from_observer}")
             pixel_x, pixel_y = hardware.intersect_display(DISPLAY_FROM_OBSERVER, SCREEN_ACTIVE_AREA[0], SCREEN_ACTIVE_AREA[1], DISPLAY_RESOLUTION, aruco_from_observer) # this gives us the pixel that the observer sees which will be the midpoint of the code from their perspective
-            display.point(np.array([pixel_x, pixel_x])) # Draw the point on the dispaly
+            display.point(np.array([pixel_x, pixel_y])) # Draw the point on the dispaly
 
 
 
