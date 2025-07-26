@@ -29,7 +29,7 @@ class TransparentDisplay:
         y = coords[1]
         draw.ellipse((x - 1, y - 1, x + 1, y + 1), fill=255*brightness) # Can scale down brightness from 0-1
 
-        self.device.display()
+        self.device.display(image)
 
     def clear(self):
         self.device.clear()
