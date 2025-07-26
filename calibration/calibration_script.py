@@ -1,99 +1,85 @@
-#!/usr/bin/env python3
 import cv2
 import numpy as np
 import time
 from picamera2 import Picamera2
+import os
 
-# === CONFIGURATION ===
-PATTERN_SIZE   = (9, 6)     # inner corners
-SQUARE_SIZE_MM = 28.2       # mm per square
-NUM_FRAMES     = 20         # captures needed
-WIDTH, HEIGHT  = 640, 480   # preview resolution
-FPS            = 30         # target frame rate
-CAMERA_INDEX   = 0          # CSI port index
-# ======================
+# === Configuration ===
+CHECKERBOARD = (9, 6)
+SQUARE_SIZE = 28.2  # mm
+NUM_IMAGES = 15
+DELAY_BETWEEN_CAPTURES = 2  # seconds
 
-def main():
-    # prepare object points
-    objp = np.zeros((PATTERN_SIZE[0]*PATTERN_SIZE[1],3),np.float32)
-    objp[:,:2] = (np.mgrid[0:PATTERN_SIZE[0],0:PATTERN_SIZE[1]].T
-                   .reshape(-1,2) * SQUARE_SIZE_MM)
-    objpoints, imgpoints = [], []
+SAVE_FILE = "camera_calibration.yaml"
+CAPTURE_DIR = "captured_images"
 
-    # init Picamera2 in fast preview (YUV420 planar)
-    picam2 = Picamera2(camera_num=CAMERA_INDEX)
-    preview_cfg = picam2.create_preview_configuration(
-        main={"size": (WIDTH, HEIGHT), "format": "YUV420"},
-        controls={"FrameRate": FPS}
-    )
-    picam2.configure(preview_cfg)
-    picam2.start()
-    time.sleep(1)  # let exposure settle
+# === Setup output directory ===
+os.makedirs(CAPTURE_DIR, exist_ok=True)
 
-    cv2.namedWindow("Calib", cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("Calib", WIDTH//2, HEIGHT//2)
-    print(f"Press 'c' when checkerboard is detected. Need {NUM_FRAMES} captures.")
+# === Prepare object points ===
+objp = np.zeros((CHECKERBOARD[0] * CHECKERBOARD[1], 3), np.float32)
+objp[:, :2] = np.mgrid[0:CHECKERBOARD[0], 0:CHECKERBOARD[1]].T.reshape(-1, 2)
+objp *= SQUARE_SIZE
 
-    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
-    captured = 0
-    t0 = time.time()
+objpoints = []  # 3D points
+imgpoints = []  # 2D points
 
-    while captured < NUM_FRAMES:
-        # grab the YUV420 frame (shape will be (HEIGHT*3/2, WIDTH))
-        frame_yuv = picam2.capture_array("main")
-        # flip entire buffer so the Y plane is also rotated
-        frame_yuv = cv2.rotate(frame_yuv, cv2.ROTATE_180)
+# === Initialize camera ===
+picam2 = Picamera2()
+picam2.configure(picam2.create_still_configuration())
+picam2.start()
+time.sleep(2)  # Allow warm-up
 
-        # extract Y (luma) plane: first HEIGHT rows
-        gray = frame_yuv[:HEIGHT, :]
+print("Starting image capture for calibration...")
 
-        # detect corners on the gray image
-        found, corners = cv2.findChessboardCorners(
-            gray, PATTERN_SIZE,
-            flags=cv2.CALIB_CB_ADAPTIVE_THRESH | cv2.CALIB_CB_NORMALIZE_IMAGE
-        )
+captured = 0
+while captured < NUM_IMAGES:
+    frame = picam2.capture_array()
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        # for display, convert gray?BGR so we can draw colored overlays
-        disp = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
-        if found:
-            cv2.drawChessboardCorners(disp, PATTERN_SIZE, corners, found)
+    ret, corners = cv2.findChessboardCorners(gray, CHECKERBOARD, None)
 
-        cv2.putText(disp, f"{captured}/{NUM_FRAMES}", (10,30),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
-        cv2.imshow("Calib", disp)
+    if ret:
+        print(f"[{captured + 1}/{NUM_IMAGES}] Checkerboard found. Capturing...")
 
-        key = cv2.waitKey(1) & 0xFF
-        if key == ord('c') and found:
-            corners2 = cv2.cornerSubPix(
-                gray, corners, (11,11), (-1,-1), criteria
-            )
-            objpoints.append(objp.copy())
-            imgpoints.append(corners2)
-            captured += 1
-            print(f"? Captured {captured}/{NUM_FRAMES}")
-        elif key in (27, ord('q')):
-            print("Aborting.")
-            picam2.stop()
-            cv2.destroyAllWindows()
-            return
+        objpoints.append(objp)
 
-    fps = captured / (time.time() - t0)
-    print(f"Effective capture rate: {fps:.1f} FPS")
+        corners2 = cv2.cornerSubPix(gray, corners, (11,11), (-1,-1),
+                                    (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001))
+        imgpoints.append(corners2)
 
-    picam2.stop()
-    cv2.destroyAllWindows()
+        img_with_corners = cv2.drawChessboardCorners(frame.copy(), CHECKERBOARD, corners2, ret)
+        filename = os.path.join(CAPTURE_DIR, f"img_{captured+1:02d}.jpg")
+        cv2.imwrite(filename, img_with_corners)
 
-    # calibrate
-    ret, K, dist, _, _ = cv2.calibrateCamera(
-        objpoints, imgpoints, (WIDTH, HEIGHT), None, None
-    )
-    print(f"\nReprojection error: {ret:.4f}")
-    print("Intrinsic matrix K:\n", K)
-    print("Distortion coeffs:\n", dist.ravel())
+        cv2.imshow('Captured', img_with_corners)
+        cv2.waitKey(500)
 
-    np.save("wide_K.npy", K)
-    np.save("wide_dist.npy", dist)
-    print("\nSaved wide_K.npy & wide_dist.npy")
+        captured += 1
+        time.sleep(DELAY_BETWEEN_CAPTURES)
+    else:
+        print("Checkerboard not detected. Try adjusting position...")
+        cv2.imshow('Preview', frame)
+        cv2.waitKey(100)
 
-if __name__ == "__main__":
-    main()
+cv2.destroyAllWindows()
+picam2.stop()
+
+# === Calibration ===
+print("Calibrating camera...")
+ret, camera_matrix, dist_coeffs, rvecs, tvecs = cv2.calibrateCamera(
+    objpoints, imgpoints, gray.shape[::-1], None, None
+)
+
+print("Calibration complete.")
+print("Camera matrix:\n", camera_matrix)
+print("Distortion coefficients:\n", dist_coeffs)
+
+# === Save calibration ===
+fs = cv2.FileStorage(SAVE_FILE, cv2.FILE_STORAGE_WRITE)
+fs.write("camera_matrix", camera_matrix)
+fs.write("distortion_coefficients", dist_coeffs)
+fs.write("reprojection_error", ret)
+fs.release()
+
+print(f"Calibration data saved to '{SAVE_FILE}'")
