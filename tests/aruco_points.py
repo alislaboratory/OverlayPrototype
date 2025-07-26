@@ -4,7 +4,7 @@ import numpy as np
 import time
 
 # --- USER SETUP: adjust these paths & values ---
-CALIB_YAML    = "camera_calib.yaml"  # your YAML file
+CALIB_YAML    = "camera_calibration.yaml"  # your YAML file
 MARKER_LENGTH = 0.05                 # marker side length in meters
 # ----------------------------------------------
 
