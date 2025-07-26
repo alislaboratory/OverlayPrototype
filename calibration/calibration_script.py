@@ -4,7 +4,7 @@ import os
 import glob
 
 # Checkerboard dimensions
-CHECKERBOARD = (9, 6)
+CHECKERBOARD = (8, 5)
 SQUARE_SIZE = 28.2  # in mm
 
 # Criteria for termination of corner subpixel refinement
