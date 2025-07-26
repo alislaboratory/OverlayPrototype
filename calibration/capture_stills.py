@@ -7,7 +7,7 @@ import glob
 
 # ??? Configuration ???
 SAVE_DIR = "stills"
-PREVIEW_SIZE = (1280, 720)   # adjust as needed
+PREVIEW_SIZE = (640, 480)   # adjust as needed
 
 # ??? Ensure save directory exists ???
 os.makedirs(SAVE_DIR, exist_ok=True)
