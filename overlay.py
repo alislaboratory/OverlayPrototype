@@ -9,7 +9,7 @@ import time
 import hardware
 
 # ADJUSTMENTS - all in meters
-CALIB_YAML    = "camera_calibration.yaml"  
+CALIB_YAML    = "calibration/camera_calibration.yaml"  
 MARKER_LENGTH = 0.1               # marker side length in meters
 OBSERVER_FROM_FF = np.array([0.0383,0,0.0436]) # this is the observer camera from the front-facing in meters
 DISPLAY_FROM_OBSERVER = np.array([0,0,0.0383]) # how far the center of the display is from the camera
