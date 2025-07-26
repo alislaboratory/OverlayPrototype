@@ -20,10 +20,10 @@ objpoints = []  # 3D points in real world space
 imgpoints = []  # 2D points in image plane
 
 # Load calibration images from folder (adjust path if needed)
-images = glob.glob('calibration_images/*.jpg')
+images = glob.glob('stills/*.jpg')
 
 if not images:
-    raise FileNotFoundError("No images found in 'calibration_images/' folder.")
+    raise FileNotFoundError("No images found in 'stills/' folder.")
 
 for fname in images:
     img = cv2.imread(fname)
