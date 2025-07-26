@@ -5,7 +5,7 @@ import time
 
 # --- USER SETUP: adjust these paths & values ---
 CALIB_YAML    = "camera_calibration.yaml"  # your YAML file
-MARKER_LENGTH = 0.05                 # marker side length in meters
+MARKER_LENGTH = 0.1               # marker side length in meters
 # ----------------------------------------------
 
 # Load camera calibration from YAML
