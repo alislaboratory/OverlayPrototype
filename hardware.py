@@ -101,7 +101,7 @@ def intersect_display(plane_center, plane_width, plane_height, resolution, vecto
     x_norm = (x_disp + plane_width / 2) / plane_width
     y_norm = (y_disp + plane_height / 2) / plane_height
 
-    x_pix = int(x_norm * w_px)
+    x_pix = int((1.0-x_norm) * w_px)
     y_pix = int((1 - y_norm) * h_px)  # Flip Y for screen coordinates
 
     return x_pix, y_pix
