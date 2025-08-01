@@ -1,5 +1,6 @@
 import pygame
 import sys
+import math
 from datetime import datetime
 
 # Initialize Pygame
@@ -20,16 +21,20 @@ TRANSPARENT_WHITE = (255, 255, 255, 128)
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 
-# Clock for updating time
+# Clock for frame updates
 clock = pygame.time.Clock()
 
 # Helper to draw battery indicator
 def draw_battery(surface, x, y, width=60, height=25, level=0.75):
     pygame.draw.rect(surface, WHITE, (x, y, width, height), 2)
     pygame.draw.rect(surface, GREEN, (x + 4, y + 4, int((width - 8) * level), height - 8))
-
-    # Battery tip
     pygame.draw.rect(surface, WHITE, (x + width, y + height // 3, 6, height // 3))
+
+# Spinner variables
+angle = 0
+spinner_radius = 30
+spinner_length = 20
+spinner_center = (width // 2, height // 2)
 
 # Main loop
 while True:
@@ -52,11 +57,17 @@ while True:
 
     # Draw notifications bar (bottom)
     notification_surface = pygame.Surface((width, 50), pygame.SRCALPHA)
-    notification_surface.fill((255, 255, 255, 40))  # Slight transparency
+    notification_surface.fill((255, 255, 255, 40))
     screen.blit(notification_surface, (0, height - 60))
-
     notif_text = font_small.render("No new notifications", True, WHITE)
     screen.blit(notif_text, (30, height - 50))
 
+    # Draw animated spinner (center)
+    end_x = spinner_center[0] + spinner_radius * math.cos(math.radians(angle))
+    end_y = spinner_center[1] + spinner_radius * math.sin(math.radians(angle))
+    pygame.draw.line(screen, WHITE, spinner_center, (end_x, end_y), 4)
+
+    angle = (angle + 5) % 360  # Rotate spinner
+
     pygame.display.flip()
-    clock.tick(1)
+    clock.tick(30)
