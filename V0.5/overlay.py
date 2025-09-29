@@ -8,7 +8,7 @@ import numpy as np
 import time
 import hardware
 
-##### 27/06 - Overlay working!
+##### 27/07 - Overlay working!
 
 # ADJUSTMENTS - all in meters
 CALIB_YAML    = "calibration/camera_calibration.yaml"  
