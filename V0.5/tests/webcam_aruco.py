@@ -25,7 +25,7 @@ def main():
             print("Failed to grab frame")
             break
 
-        # 5) Detect markers (works on color or grayscale internally)
+        # 5) Detect markers         (works on color or grayscale internally)
         corners, ids, rejected = detector.detectMarkers(frame)
 
         # 6) If any markers found, draw outlines and IDs
