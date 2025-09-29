@@ -7,6 +7,7 @@ import cv2
 import numpy as np
 import time
 import hardware
+import subprocess
 
 ##### 27/07 - Overlay working!
 
@@ -42,7 +43,13 @@ display = hardware.TransparentDisplay()
 aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
 params     = cv2.aruco.DetectorParameters_create()
 
+# Open Observer Camera - TODO Change this to use Picamera to consolidate
+subprocess.run(["rpicam-hello", "--camera", "0", "--vflip", "--timeout", "0"])
+
+
+
 print("Press 'q' to quit...")
+
 
 
 
