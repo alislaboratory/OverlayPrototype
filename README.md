@@ -18,4 +18,5 @@ If on a new install, here is how to create a venv which ensures that the code at
 - Install as much as possible system-wide before using pip in the venv. Start with the following packages:
 ```sudo apt install -y python3-venv python3-picamera2 python3-opencv python3-numpy```
 - Then install the rest of the needed libraries (ATM only luma.oled for the transparent display):
+    - Create a virtual environment
     - ```pip install --upgrade luma.oled```
