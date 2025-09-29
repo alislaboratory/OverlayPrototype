@@ -9,8 +9,6 @@ import time
 import hardware
 import subprocess
 
-##### 27/07 - Overlay working!
-
 # ADJUSTMENTS - all in meters
 CALIB_YAML    = "calibration/camera_calibration.yaml"  
 MARKER_LENGTH = 0.1               # marker side length in meters
@@ -23,7 +21,7 @@ DISPLAY_RESOLUTION = (128,56) # transparent pixels of the screen (some are cut o
 # Load camera calibration from YAML
 fs = cv2.FileStorage(CALIB_YAML, cv2.FILE_STORAGE_READ)
 if not fs.isOpened():
-    raise IOError(f"Cannot open calibration file: {CALIB_YAML}")
+    raise IOError(f"OverlayPT: Cannot open calibration file: {CALIB_YAML}")
 camera_matrix = fs.getNode("camera_matrix").mat()
 dist_coeffs   = fs.getNode("distortion_coefficients").mat()
 fs.release()
@@ -44,8 +42,8 @@ aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
 params     = cv2.aruco.DetectorParameters_create()
 
 # Open Observer Camera - TODO Change this to use Picamera to consolidate
-subprocess.run(["rpicam-hello", "--camera", "1", "--vflip", "--timeout", "0"])
-
+proc = subprocess.Popen(["rpicam-hello", "--camera", "1", "--vflip", "--timeout", "0"])
+print("OverlayPT: Observer Camera Opened")
 
 
 print("Press 'q' to quit...")
@@ -93,7 +91,7 @@ while True:
 
             ##### Overlay Code #######
             aruco_from_observer = hardware.from_observer(np.array([x,y,z]), OBSERVER_FROM_FF) # this will give us the aruco code's position relative to the observer
-            print(f"Aruco's position from observer cam: f{aruco_from_observer}")
+            print(f"OverlayPT: Aruco's position from observer cam: f{aruco_from_observer}")
             pixel_x, pixel_y = hardware.intersect_display(DISPLAY_FROM_OBSERVER, SCREEN_ACTIVE_AREA[0], SCREEN_ACTIVE_AREA[1], DISPLAY_RESOLUTION, aruco_from_observer) # this gives us the pixel that the observer sees which will be the midpoint of the code from their perspective
             display.point(np.array([pixel_x, pixel_y])) # Draw the point on the dispaly
 
