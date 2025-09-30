@@ -42,7 +42,7 @@ display = hardware.TransparentDisplay()
 aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
 params     = cv2.aruco.DetectorParameters_create()
 
-proc = subprocess.Popen(["rpicam-hello", "--camera", "1", "--vflip", "--timeout", "0"])
+# proc = subprocess.Popen(["rpicam-hello", "--camera", "1", "--vflip", "--timeout", "0"])
 print("OverlayPT: Camera thread")
 
 print("Press 'q' to quit...")
@@ -101,7 +101,7 @@ while True:
     # Show result
     cv2.imshow("ArUco 3D Pose", frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
-        proc.terminate()
+        # proc.terminate()
         print("OverlayPT: Exiting")
         break
 
