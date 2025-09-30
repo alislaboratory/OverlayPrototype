@@ -78,10 +78,11 @@ while True:
             # Draw the 3D axes using drawFrameAxes instead
             # cv2.drawFrameAxes(frame, camera_matrix, dist_coeffs, rvec, tvec, MARKER_LENGTH * 0.5)
 
+            x, y, z = tvec # Here are our 3D coords
+            corner_pt = tuple(corners[i][0][0].astype(int))
             # Overlay the 3D coords on screen
-            # x, y, z = tvec # Here are our 3D coords
+            
             # text = f"ID {marker_id}: x={x:.3f}, y={y:.3f}, z={z:.3f} m"
-            # corner_pt = tuple(corners[i][0][0].astype(int))
             # cv2.putText(frame, text, (corner_pt[0], corner_pt[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
             # Print to console
