@@ -42,13 +42,7 @@ display = hardware.TransparentDisplay()
 aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
 params     = cv2.aruco.DetectorParameters_create()
 
-# Open Observer Camera - TODO Change this to use Picamera to consolidate
-def open_camera():
-    proc = subprocess.Popen(["rpicam-hello", "--camera", "1", "--vflip", "--timeout", "0"], check=True)
-    
 
-t = threading.Thread(target=open_camera, daemon=True)
-t.start()
 print("OverlayPT: Camera thread")
 
 print("Press 'q' to quit...")
@@ -107,7 +101,7 @@ while True:
     # Show result
     cv2.imshow("ArUco 3D Pose", frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
-        t.join()
+
         print("OverlayPT: Exiting")
         break
 
