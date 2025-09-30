@@ -64,7 +64,7 @@ while True:
     corners, ids, _ = cv2.aruco.detectMarkers(gray, aruco_dict, parameters=params)
 
     if ids is not None:
-        cv2.aruco.drawDetectedMarkers(frame, corners, ids)
+        # cv2.aruco.drawDetectedMarkers(frame, corners, ids)
 
         # Estimate pose
         rvecs, tvecs, _ = cv2.aruco.estimatePoseSingleMarkers(
