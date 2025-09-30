@@ -107,8 +107,7 @@ while True:
     # Show result
     cv2.imshow("ArUco 3D Pose", frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
-        proc.terminate()
-
+        t.join()
         print("OverlayPT: Exiting")
         break
 
