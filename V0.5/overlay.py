@@ -47,9 +47,9 @@ def open_camera():
     proc = subprocess.Popen(["rpicam-hello", "--camera", "1", "--vflip", "--timeout", "0"], check=True)
     
 
-t = threading.Thread(target=open_camera, args=(["python", "-V"],), daemon=True)
+t = threading.Thread(target=open_camera, args=(["python", "-V"]), daemon=True)
 t.start()
-print("OverlayPT: Camera thread started")
+print("OverlayPT: Camera thread")
 
 print("Press 'q' to quit...")
 
