@@ -8,6 +8,7 @@ import numpy as np
 import time
 import hardware
 import subprocess
+import threading
 
 # ADJUSTMENTS - all in meters
 CALIB_YAML    = "calibration/camera_calibration.yaml"  
@@ -42,9 +43,13 @@ aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
 params     = cv2.aruco.DetectorParameters_create()
 
 # Open Observer Camera - TODO Change this to use Picamera to consolidate
-proc = subprocess.Popen(["rpicam-hello", "--camera", "1", "--vflip", "--timeout", "0"])
-print("OverlayPT: Observer Camera Opened")
+def open_camera():
+    proc = subprocess.Popen(["rpicam-hello", "--camera", "1", "--vflip", "--timeout", "0"], check=True)
+    
 
+t = threading.Thread(target=open_camera, args=(["python", "-V"],), daemon=True)
+t.start()
+print("OverlayPT: Camera thread started")
 
 print("Press 'q' to quit...")
 
