@@ -76,8 +76,7 @@ while True:
             tvec = tvecs[i][0]  # (x, y, z) in meters
 
             # Draw the 3D axes using drawFrameAxes instead
-            cv2.drawFrameAxes(frame, camera_matrix, dist_coeffs,
-                              rvec, tvec, MARKER_LENGTH * 0.5)
+            # cv2.drawFrameAxes(frame, camera_matrix, dist_coeffs, rvec, tvec, MARKER_LENGTH * 0.5)
 
             # Overlay the 3D coords on screen
             x, y, z = tvec # Here are our 3D coords
