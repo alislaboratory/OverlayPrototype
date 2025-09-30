@@ -27,7 +27,8 @@ class TransparentDisplay:
 
         x = coords[0]
         y = coords[1]
-        draw.ellipse((x - 1, y - 1, x + 1, y + 1), fill=255*brightness) # Can scale down brightness from 0-1
+        # draw.ellipse((x - 1, y - 1, x + 1, y + 1), fill=255*brightness) # Can scale down brightness from 0-1
+        draw.point((x,y), fill=255*brightness) # CHANGED HERE TO POINT INSTEAD OF ELLIPSE FOR HIGHER RES
 
         self.device.display(image)
 
